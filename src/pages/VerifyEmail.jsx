@@ -49,9 +49,9 @@ const VerifyEmail = () => {
               numInputs={6}
               renderSeparator=<span className=" opacity-0">-</span>
               renderInput={(props) => (
-                <input {...props} className="bg-richblack-900 px-10 py-5 rounded-lg text-richblack-25 font-semibold w-full" />
+                <input {...props} className="text-richblack-100 bg-richblack-900 " />
               )}
-            
+              
             ></OTPInput>
             <button
               className="font-semibold w-full py-2 px-6 rounded-lg mt-5 bg-button text-white hover:bg-black hover:text-white transition-all duration-200 hover:scale-95"

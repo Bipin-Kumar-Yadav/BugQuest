@@ -9,14 +9,21 @@ const User = require("../models/User");
 const mailSender = require("../utils/mailSender");
 const BugAssignedMail = require("../mail/BugAssignedMail");
 const BugSolvedMail = require("../mail/BugSolvedMail");
+const cloudinary = require("cloudinary").v2; 
+
+async function uploadFileToCloudinary(file,folder){
+  const options = { resource_type: 'auto',folder};
+  return await cloudinary.uploader.upload(file.tempFilePath,options);
+}
 
 const createBug = async (req, res) => {
   try {
     // get all data
     const { title, desc, status, priority, createdBy, assignedTo } = req.body;
     const userId = req.user.id;
+    const file = req.files.file;
     // validation
-    if (!title || !desc) {
+    if (!title || !desc) {  
       return res.status(400).json({
         success: false,
         error: "All fields are required",
@@ -35,14 +42,30 @@ const createBug = async (req, res) => {
       });
     }
     // create a bug
-    const newBug = await Bug.create({
-      title: title,
-      desc: desc,
-      status: status,
-      priority: priority,
-      createdBy: userId,
-      assignedTo: assignedTo,
-    });
+    if(!file){
+      const newBug = await Bug.create({
+        title: title,
+        desc: desc,
+        status: status,
+        priority: priority,
+        createdBy: userId,
+        assignedTo: assignedTo,
+      });
+    }
+    else{
+        const response = await uploadFileToCloudinary(file,"bugquest");
+        console.log(response)
+        const newBug = await Bug.create({
+          title : title,
+          desc:desc,
+          status:status,
+          priority: priority,
+          createdBy: userId,
+          assignedTo: assignedTo,
+          bugUrl : response.secure_url,
+        })
+    }
+    
     const mail = await User.findById(assignedTo);
 
     await mailSender(
@@ -55,7 +78,6 @@ const createBug = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      data: newBug,
     });
   } catch (error) {
     console.log(error);
@@ -79,6 +101,8 @@ const getAllBug = async (req, res) => {
         priority: true,
         createdBy: true,
         assignedTo: true,
+        bugUrl:true,
+        resolveUrl:true,
       }
     );
 
@@ -135,9 +159,10 @@ const getBugById = async (req, res) => {
 const updateById = async (req, res) => {
   try {
     const { title, desc, status, priority, createdBy, assignedTo, bugId } =
-      req.body;
-
-
+    req.body;
+    const file = req.files.file;
+    const user = req.user.id;
+    console.log(bugId)
     // validation
     const mail = await User.findById(createdBy).populate("email");
     const name = await User.findById(assignedTo)
@@ -158,6 +183,20 @@ const updateById = async (req, res) => {
     }
     bug.priority = priority;
     bug.status = status;
+    if(file){
+      const userType = await User.findById(user);
+      const userRole = userType.role;
+      console.log(userRole);
+      const response = await uploadFileToCloudinary(file,"bugquest");
+      if(userRole === "Tester"){
+        console.log("tester")
+        bug.bugUrl = response.secure_url;
+      }
+      else{
+        console.log("developer")
+        bug.resolveUrl = response.secure_url;
+      }
+    }
     await bug.save();
 
     if (bug.status === "Closed") {
@@ -180,6 +219,27 @@ const updateById = async (req, res) => {
   }
 };
 
+// file upload
+const bugUpload = async(req,res) => {
+    try{
+        const file = req.files.file;
+        let path = __dirname + "/files/" + Date.now() + `.${file.name.split('.')[1]}`;
+        file.mv(path,(err)=>{
+          console.log(err);
+        })
+
+        res.json({
+          success:true,
+          message:"Loacal file uploaded "
+        })
+    }
+    catch(error){
+      return res.status(500).json({
+        success:false,
+        error:"Failed to upload bug attachment"
+      })
+    }
+}
 // delete a bug by ID
 
 const deleteBug = async (req, res) => {

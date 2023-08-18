@@ -13,14 +13,12 @@ const Dashboard = () => {
     else{
         return (
             <div className="bg-richblue-900 h-screen">
-                <div className='w-screen flex gap-4'>
-                    <div className='w-[20%] '>
+                <div className='flex flex-col h-full'>
+                    <div className='w-[25%] mt-14'>
                             <Sidebar/>
                     </div>
-                    <div className=' flex w-[80%] py-10'>
-                          <div className='w-[75%] mx-auto'>
+                    <div className='w-[50%] items-center mx-auto mt-14 '>
                             <Outlet/>
-                          </div>
                     </div>
                 </div>
             </div>

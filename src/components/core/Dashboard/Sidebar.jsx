@@ -14,7 +14,7 @@ const Sidebar = () => {
 
   // 
   return (
-    <div className=" flex flex-col gap-3 h-screen  bg-richblack-900  text-richblack-25 items-center text-center">
+    <div className="flex fixed w-[16%] flex-col gap-3 h-screen  bg-richblack-900  text-richblack-25 items-center text-center">
       <NavLink
         to={"/dashboard/my-profile"}
         className={`relative w-full py-3 ${

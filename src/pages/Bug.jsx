@@ -36,12 +36,13 @@ const Bug = () => {
         const filterBug = response.data.data.filter(
           (bug) => bug.assignedTo === user._id
         );
+        console.log("BUG",filterBug)
         setBugs(filterBug);
-        console.log(bugs);
       } else {
         const filterBug = response.data.data.filter(
           (bug) => bug.createdBy === user._id
         );
+        console.log("BUG",filterBug)
         setBugs(filterBug);
       }
       if (!response.data.success) {
@@ -51,6 +52,7 @@ const Bug = () => {
     };
     fetchBug();
   }, []);
+ 
   return (
     <div>
       {loading ? (
@@ -109,7 +111,12 @@ const Bug = () => {
                   }
                 </span>
               </p>
-
+                <p className="text-richblack-5 font-semibold flex gap-2">
+                Bug Report : <a className="text-richblack-300" href={bug.bugUrl}>{bug.bugUrl ? "Download Attachment" : "No Attachment"}</a>
+                </p>
+                <p className="text-richblack-5 font-semibold flex gap-2">
+                  Resolve Bug Report : <a className="text-richblack-300" href={bug.resolveUrl}>{bug.resolveUrl ? "Download Attachment" : "No Attachment"}</a>
+                </p>
               <div className="flex justify-between items-center">
                 {user?.role === "Tester" && (
                   <Btn onClick={() => handleDelete(bug._id)}>Delete</Btn>

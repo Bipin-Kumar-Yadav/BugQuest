@@ -22,7 +22,7 @@ const Navbar = () => {
     return matchPath({ path: route }, location.pathname);
   };
   return (
-    <div className="flex h-14 items-center  w-full  bg-richblack-900 justify-center py-1 border-b-[1px] border-b-richblue-900">
+    <div className="flex h-14 items-center fixed w-full  bg-richblack-900 justify-center py-1 border-b-[1px] border-b-richblue-900">
       <div className=" w-11/12 max-w-maxContent mx-auto items-center flex text-center justify-between">
         {/* logo */}
         <Link to="/">

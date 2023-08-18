@@ -9,6 +9,7 @@ import { updateBugById } from '../../../services/operations/userAPI';
 const EditBugTes = () => {
     const BASE_URL = process.env.REACT_APP_BASE_URL
     const {token} = useSelector((state)=> state.auth)
+    const [file,setFile] = useState(null);
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const params = useParams();
@@ -22,12 +23,34 @@ const EditBugTes = () => {
         handleSubmit,
         errors
     } = useForm();
+
+    const handleFileChange = (e) =>{
+        setFile(e.target.files[0])
+    }
     const onSubmitHandle= (data) =>{
         data.bugId = bugId;
-        data.createdBy = Bug.data.createdBy
-        data.status = Bug.data.status
-        data.assignedTo = Bug.data.assignedTo
-        dispatch(updateBugById(token,data,navigate))
+        data.createdBy = Bug.data.createdBy;
+        data.status = Bug.data.status;
+        data.assignedTo = Bug.data.assignedTo;
+    
+        if (file) {
+          const formData = new FormData();
+          formData.append('file', file);
+    
+          // Append other form data fields to the FormData object
+          formData.append('title', data.title);
+          formData.append('desc', data.desc);
+          formData.append('status', data.status);
+          formData.append('bugId',data.bugId);
+          formData.append('createdBy',data.createdBy);
+          formData.append('assignedTo',data.assignedTo);
+    
+          dispatch(updateBugById(token, formData, navigate));
+        } else {
+          dispatch(updateBugById(token, data, navigate));
+        }
+    
+        reset(data);
 
     }
     useEffect(()=>{
@@ -78,6 +101,15 @@ const EditBugTes = () => {
                     {...register("desc",{required:true})}
                     className='text-richblack-300 bg-richblue-900 w-full px-6 py-3 rounded-lg'
                 />
+            </label>
+            <label htmlFor='file'>
+              <input
+                type='file'
+                id='file'
+                name='file'
+                onChange={handleFileChange}
+              />
+
             </label>
             <div className='flex justify-between text-richblack-25 font-semibold'>
             Set Priority :

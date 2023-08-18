@@ -12,6 +12,7 @@ const BugCreateForm = () => {
     const [loading,setLoading] = useState(false);
     const navigate = useNavigate();
     const [developers,setDevelopers] = useState(null);
+    const [file,setFile] = useState(null);
     const url = BASE_URL + `/profile/getAll-developers`
     const {
         register,
@@ -33,10 +34,31 @@ const BugCreateForm = () => {
         
     },[])
 
+    const handleFileChange =(e) =>{
+        const File = e.target.files[0];
+        console.log(File);
+        setFile(File);
+    }
+
     const submitData = (data) => {
         // dispatch(createBug(token,data,navigate))
-        dispatch(createBug(token,data,navigate))
-        reset(data)
+        if (file) {
+            const formData = new FormData();
+            formData.append('file', file);
+        
+            // Append other form data fields to the FormData object
+            formData.append('title', data.title);
+            formData.append('desc', data.desc);
+            formData.append('priority', data.priority);
+            formData.append('assignedTo', data.assignedTo);
+        
+            dispatch(createBug(token, formData, navigate));
+          } else {
+            // Handle the case where no file is selected
+            dispatch(createBug(token, data, navigate));
+          }
+        
+          reset(data);
     }
 
   return (
@@ -70,7 +92,23 @@ const BugCreateForm = () => {
                 
 
                 </label>
+                <div>
+                    <label htmlFor='file'>
+                        <input
+                            type='file'
+                            id='file'
+                            name='file'
+                            {
+                                ...register("file")
+                            }
+                            
+                            onChange={handleFileChange}
+
+                        />
+                    </label>
+                </div>
                 <div  className='flex justify-between text-richblack-25 font-bold'>
+                
                 Set Priority : 
             <label
                 htmlFor='Low'
